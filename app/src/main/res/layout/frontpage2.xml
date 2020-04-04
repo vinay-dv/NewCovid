@@ -38,5 +38,5 @@
         android:src="@drawable/stay"
         android:layout_alignParentBottom="true"
         ></ImageView>
-
+    
 </RelativeLayout>
