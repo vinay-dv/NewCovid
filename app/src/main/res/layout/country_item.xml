@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="10dp"
+    app:cardElevation="@dimen/cardview_compat_inset_shadow"
     app:cardCornerRadius="4dp">
 
     <RelativeLayout
@@ -19,22 +20,22 @@
 
         <TextView
             android:id="@+id/countryName"
-            android:layout_width="wrap_content"
+            android:layout_width="110dp"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/countryflagimageView"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="8dp"
-            android:text="country Name"
+            android:layout_marginLeft="7dp"
+            android:text=""
             android:textColor="@android:color/black"
             android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:paddingLeft="2dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:orientation="horizontal"
-            android:paddingLeft="20dp"
             android:weightSum="3">
 
             <LinearLayout
@@ -42,6 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_weight="1"
+                android:layout_marginLeft="2dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -49,14 +51,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cases"
-                    android:textColor="@android:color/black"
-                    android:textSize="10sp" />
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/displayCase"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Line 2"
+                    android:text=""
+                    android:layout_marginTop="3dp"
+                    android:textColor="@android:color/black"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -65,6 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:paddingLeft="5dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -73,40 +78,44 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Deaths"
-                    android:textColor="@android:color/black"
-                    android:textSize="10sp" />
+                    android:textColor="@android:color/holo_red_dark"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/displayDeaths"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Line 2"
+                    android:text=""
+                    android:layout_marginTop="3dp"
+                    android:textColor="@android:color/black"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="33dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_weight="1"
-                android:layout_marginRight="-18dp"
+                android:paddingLeft="4dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/recovered"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
+
                     android:layout_height="wrap_content"
                     android:text="Recovered"
-                    android:textColor="@android:color/black"
-                    android:textSize="10sp" />
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/displayCaseRecovered"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:text="Line 2"
+                    android:layout_marginTop="3dp"
+                    android:text=""
+                    android:textColor="@android:color/black"
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>

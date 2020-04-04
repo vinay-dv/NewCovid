@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#ffff"
+    android:layout_height="match_parent"
+    tools:context=".FirstEveryTime"
+   >
+
+    <TextView
+        android:id="@+id/t1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="#008A9C"
+        android:text="Covid-19 Tracker"
+        android:textSize="30sp"/>
+
+        <ImageView
+            android:id="@+id/img1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/t1"
+            android:src="@drawable/coronavirus"
+            android:layout_marginTop="30dp"
+            ></ImageView>
+
+    <ImageView
+        android:layout_below="@+id/img1"
+        android:id="@+id/img2"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_height="400dp"
+        android:src="@drawable/stay"
+        android:layout_alignParentBottom="true"
+        ></ImageView>
+
+</RelativeLayout>

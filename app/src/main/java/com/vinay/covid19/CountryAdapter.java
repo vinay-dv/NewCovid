@@ -1,5 +1,6 @@
 package com.vinay.covid19;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,30 +18,49 @@ import java.util.List;
 
 public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryViewHolder> implements Filterable {
     //list of objetcs of country items (each object is representing the Country)
-    private List<Country_item> mCountryList;
-    private List<Country_item> mCountryListcopy;
-    public static class CountryViewHolder extends RecyclerView.ViewHolder{
+    private ArrayList<Country_item> mCountryList;
+    private ArrayList<Country_item> mCountryListcopy;
+    public OnItemClickListener mListener;
 
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mListener = listener;
+    }
+
+    public static class CountryViewHolder extends RecyclerView.ViewHolder{
         public ImageView mImageView;
         public TextView mCountryName;
         public TextView mCases;
         public TextView mDeaths;
         public TextView mRecovered;
 
-        public CountryViewHolder(@NonNull View itemView) {
+        public CountryViewHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
-
             // finding views in country item layout file (country_item)
             mImageView = itemView.findViewById(R.id.countryflagimageView);
             mCountryName = itemView.findViewById(R.id.countryName);
             mCases = itemView.findViewById(R.id.displayCase);
             mDeaths = itemView.findViewById(R.id.displayDeaths);
             mRecovered = itemView.findViewById(R.id.displayCaseRecovered);
-        }
 
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onItemClick(position);
+                        }
+                    }
+                }
+            });
+        }
     }
 
-    CountryAdapter(List<Country_item> countryList)
+    CountryAdapter(ArrayList<Country_item> countryList)
     {
         mCountryList = countryList;
         mCountryListcopy = new ArrayList<>(mCountryList);
@@ -49,19 +69,18 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
     @Override
     public CountryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.country_item,parent,false);
-        CountryViewHolder countryviewHolder = new CountryViewHolder(v);
+        CountryViewHolder countryviewHolder = new CountryViewHolder(v,mListener);
         return countryviewHolder;
     }
 
     @Override
     public void onBindViewHolder(CountryViewHolder holder, int position) {
-        Country_item country = mCountryList.get(position);
-        holder.mImageView.setImageBitmap(country.getImageResource());
-        holder.mCountryName.setText(country.getCountryName());
-        holder.mCases.setText(country.getCases());
-        holder.mDeaths.setText(country.getDeaths());
-        holder.mRecovered.setText(country.getRecovered());
-
+                Country_item country = mCountryList.get(position);
+                holder.mImageView.setImageBitmap(country.getImageResource());
+                holder.mCountryName.setText(country.getCountryName());
+                holder.mCases.setText(country.getCases());
+                holder.mDeaths.setText(country.getDeaths());
+                holder.mRecovered.setText(country.getRecovered());
     }
 
     @Override
@@ -103,6 +122,7 @@ public class CountryAdapter extends RecyclerView.Adapter<CountryAdapter.CountryV
             mCountryList.clear();
             mCountryList.addAll((List) results.values);
             notifyDataSetChanged();
+
         }
     };
 }
