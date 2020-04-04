@@ -3,6 +3,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,14 +66,19 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(!isConnected(MainActivity.this)) buildDialog(MainActivity.this).show();
+        if(!ConnectionManager.isConnected(MainActivity.this))
+        {
+                Intent intent = new Intent(this, FirstPage.class);
+                startActivity(intent);
+                finish();
+        }
         else {
             setContentView(R.layout.activity_main);
             fun(1);
-            
+
             Intent intent = new Intent(MainActivity.this,FirstEveryTime.class);
             startActivity(intent);
-           
+
             //making list of images
             assetManager = getAssets();
             bitmapList = new ArrayList<Bitmap>();
@@ -125,36 +132,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
     }
 
-    boolean isConnected(Context context)
-    {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netinfo = cm.getActiveNetworkInfo();
 
-        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
-        android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-        if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
-        else return false;
-    } else
-        return false;
-    }
-
-    public AlertDialog.Builder buildDialog(Context c) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(c);
-        builder.setTitle("No Internet Connection");
-        builder.setMessage("You need to have Mobile Data or wifi to access this. Press ok to Exit");
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                finish();
-            }
-        });
-
-        return builder;
-    }
 
   /*  public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
