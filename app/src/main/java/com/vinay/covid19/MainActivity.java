@@ -3,9 +3,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +15,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import android.util.Log;
@@ -33,8 +29,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
-import android.widget.Toast;
-
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -42,7 +36,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static java.io.FileDescriptor.out;
 
 
 public class MainActivity extends AppCompatActivity implements CountryAdapter.OnItemClickListener {
@@ -71,35 +64,19 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!isConnected(MainActivity.this)) buildDialog(MainActivity.this).show();
+        if(!isConnected(MainActivity.this)) buildDialog(MainActivity.this).show();
         else {
             setContentView(R.layout.activity_main);
             fun(1);
-            Intent intent = new Intent(this, FirstPage.class);
+            
+            Intent intent = new Intent(MainActivity.this,FirstEveryTime.class);
             startActivity(intent);
-
-
-      /*  Boolean isFirstRun = getSharedPreferences("data", MODE_PRIVATE)
-                .getBoolean("isFirstRun", true);
-        if (isFirstRun) {
-            startActivity(new Intent(MainActivity.this, FirstEveryTime.class));
-            Intent i = getIntent();
-            finish();
-            startActivity(i);
-        }
-        getSharedPreferences("data", MODE_PRIVATE).edit()
-                .putBoolean("isFirstRun", false).commit();
-*/
-            // if (!isFirstRun) {}
-
-            //flags image array
+           
+            //making list of images
             assetManager = getAssets();
             bitmapList = new ArrayList<Bitmap>();
-            try {
-                listAllImages();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            listAllImages();
+
 
             // live button
             mliveIcon = findViewById(R.id.liveicon);
@@ -132,20 +109,34 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             });
         }
 
+
+      /*  Boolean isFirstRun = getSharedPreferences("data", MODE_PRIVATE)
+                .getBoolean("isFirstRun", true);
+        if (isFirstRun) {
+            startActivity(new Intent(MainActivity.this, FirstPage.class));
+            Intent i = getIntent();
+            finish();
+            startActivity(i);
+        }
+        getSharedPreferences("data", MODE_PRIVATE).edit()
+                .putBoolean("isFirstRun", false).commit();
+*/
+        // if (!isFirstRun) {}
+
     }
 
-    public boolean isConnected(Context context) {
-
+    boolean isConnected(Context context)
+    {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netinfo = cm.getActiveNetworkInfo();
 
         if (netinfo != null && netinfo.isConnectedOrConnecting()) {
-            android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-            if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
+        if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
         else return false;
-        } else
+    } else
         return false;
     }
 
@@ -154,9 +145,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
         builder.setTitle("No Internet Connection");
         builder.setMessage("You need to have Mobile Data or wifi to access this. Press ok to Exit");
-
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -166,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
         return builder;
     }
-
 
   /*  public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
@@ -386,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         mcountry.add(position, new Country_item(bitmapList.get(position), "United States", c, r, d));
         mAdapter.notifyItemInserted(position);
     }
+
     public void removeCountry(int position) {
         mcountry.remove(position);
     }*/
@@ -404,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public void onItemClick(int position) {
         Intent detailIntent = new Intent(MainActivity.this, DetailActivity.class);
         Country_item clickedItem = mcountry.get(position);
-        // detailIntent.putExtra("item",clickedItem);
+       // detailIntent.putExtra("item",clickedItem);
 
         Bitmap bitmap = clickedItem.getImageResource();
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
