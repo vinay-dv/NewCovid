@@ -4,8 +4,10 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
@@ -65,17 +67,17 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public static final String EXTRA_mactive="f", EXTRA_mcritical="h";
     public static final String EXTRA_mtime="i";
     public static final int EXTRA_POS = 0;
- 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(ConnectionManager.getConnectivityStatusString(getBaseContext())=="No internet is available")
-        {
-            Intent intent = new Intent(this,FirstPage.class);
-            startActivity(intent);
-        }
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        fun(1);
+        if (!isConnected(MainActivity.this)) buildDialog(MainActivity.this).show();
+        else {
+            setContentView(R.layout.activity_main);
+            fun(1);
+            Intent intent = new Intent(this, FirstPage.class);
+            startActivity(intent);
+
 
       /*  Boolean isFirstRun = getSharedPreferences("data", MODE_PRIVATE)
                 .getBoolean("isFirstRun", true);
@@ -88,46 +90,81 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         getSharedPreferences("data", MODE_PRIVATE).edit()
                 .putBoolean("isFirstRun", false).commit();
 */
-        // if (!isFirstRun) {}
+            // if (!isFirstRun) {}
 
-        //flags image array
-        assetManager = getAssets();
-        bitmapList = new ArrayList<Bitmap>();
-        try {
-            listAllImages();
-        } catch (Exception e) {
-            e.printStackTrace();
+            //flags image array
+            assetManager = getAssets();
+            bitmapList = new ArrayList<Bitmap>();
+            try {
+                listAllImages();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // live button
+            mliveIcon = findViewById(R.id.liveicon);
+            Animation animation = AnimationUtils.loadAnimation(this, R.anim.blink);
+            mliveIcon.startAnimation(animation);
+
+            Map<String, String> map = new HashMap<>();
+            // map = fun(1);
+            //printMap(map);
+            fun(1);
+            createCountryList();
+            buildRecyclerView();
+
+
+            // Search View
+            searchView = findViewById(R.id.searchView);
+            searchView.setIconifiedByDefault(false);
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    ((CountryAdapter) mAdapter).getFilter().filter(newText);
+                    return false;
+                }
+            });
         }
 
-        // live button
-        mliveIcon = findViewById(R.id.liveicon);
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.blink);
-        mliveIcon.startAnimation(animation);
+    }
 
-        Map<String, String> map = new HashMap<>();
-        // map = fun(1);
-        //printMap(map);
-        fun(1);
-        createCountryList();
-        buildRecyclerView();
+    public boolean isConnected(Context context) {
 
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
 
-        // Search View
-        searchView = findViewById(R.id.searchView);
-        searchView.setIconifiedByDefault(false);
-        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
+        else return false;
+        } else
+        return false;
+    }
+
+    public AlertDialog.Builder buildDialog(Context c) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        builder.setTitle("No Internet Connection");
+        builder.setMessage("You need to have Mobile Data or wifi to access this. Press ok to Exit");
+
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            public void onClick(DialogInterface dialog, int which) {
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                ((CountryAdapter) mAdapter).getFilter().filter(newText);
-                return false;
+                finish();
             }
         });
+
+        return builder;
     }
 
 
@@ -349,7 +386,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         mcountry.add(position, new Country_item(bitmapList.get(position), "United States", c, r, d));
         mAdapter.notifyItemInserted(position);
     }
-
     public void removeCountry(int position) {
         mcountry.remove(position);
     }*/
@@ -368,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public void onItemClick(int position) {
         Intent detailIntent = new Intent(MainActivity.this, DetailActivity.class);
         Country_item clickedItem = mcountry.get(position);
-       // detailIntent.putExtra("item",clickedItem);
+        // detailIntent.putExtra("item",clickedItem);
 
         Bitmap bitmap = clickedItem.getImageResource();
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
