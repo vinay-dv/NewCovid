@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
       /*  Boolean isFirstRun = getSharedPreferences("data", MODE_PRIVATE)
                 .getBoolean("isFirstRun", true);
         if (isFirstRun) {
-            startActivity(new Intent(MainActivity.this, FirstPage.class));
+            startActivity(new Intent(MainActivity.this, FirstEveryTime.class));
             Intent i = getIntent();
             finish();
             startActivity(i);
