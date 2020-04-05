@@ -4,29 +4,30 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.Size;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -37,8 +38,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
 
 public class MainActivity extends AppCompatActivity implements CountryAdapter.OnItemClickListener {
     private ArrayList<Country_item> mcountry;
@@ -66,19 +65,32 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if(!ConnectionManager.isConnected(MainActivity.this))
         {
-                Intent intent = new Intent(this, FirstPage.class);
-                startActivity(intent);
-                finish();
+           Intent intent = new Intent(this,FirstPage.class);
+           startActivity(intent);
+           finish();
         }
         else {
-            setContentView(R.layout.activity_main);
+            Boolean isFirstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .getBoolean("isFirstRun", true);
+            if(isFirstRun) {
+                Intent i = new Intent(this,FirstRun.class);
+                startActivity(i);
+                finish();
+            }
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
+                    .putBoolean("isFirstRun", false).commit();
+
             fun(1);
+            if(!isFirstRun) {
+                Intent intent = new Intent(this, FirstEveryTime.class);
+                startActivity(intent);
+            }
 
-            Intent intent = new Intent(MainActivity.this,FirstEveryTime.class);
-            startActivity(intent);
-
+            fun(1);
+            setContentView(R.layout.activity_main);
             //making list of images
             assetManager = getAssets();
             bitmapList = new ArrayList<Bitmap>();
@@ -90,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.blink);
             mliveIcon.startAnimation(animation);
 
-            Map<String, String> map = new HashMap<>();
+            //Map<String, String> map = new HashMap<>();
             // map = fun(1);
             //printMap(map);
             fun(1);
@@ -132,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
     }
 
-
-
   /*  public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
         while (it.hasNext()) {
@@ -151,12 +161,12 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         if (fetch == 1) {
             DownloadTask task = new DownloadTask();
             //task.execute("");
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+              task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
         }
-        Log.i("fun", "is called");
+        // Log.i("fun", "is called");
         for (int i = 0; i < country_list.size(); i++) {
             String country = country_list.get(i);
-            Log.i("fetch1 " + country, get_data(country));
+            //  Log.i("fetch1 " + country, get_data(country));
             mp.put(country, get_data(country));
         }
         return mp;
@@ -182,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                 int totalcases, totaldeaths, totalrecovered, mactive, mcritical;
                 String ret = "";
                 String newCases, newDeaths;
-                String timeDate;
+                String timeDate = "";
                 for (int i = 0; i < stats.length(); i++) {
 
                     //objects 3
@@ -204,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                     //saving data
                     ret = totalcases + "," + totaldeaths + "," + totalrecovered + "," + newCases + "," + mactive + "," +
                             mcritical + "," + newDeaths + "," + timeDate;
+                    Log.i("time is: ",String.valueOf(get_time_from_last_fetch(timeDate)));
                     Log.i("result of " + country + ": ", ret);
                     res.put(country, ret);
                 }
@@ -221,25 +232,25 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             for (int i = 0; i < country_list.size(); i++) {
                 String country = country_list.get(i);
                 String val = mp.get(country);
-                Log.i("post", val + " " + country);
+                // Log.i("post", val + " " + country);
                 set_data(country, val);
             }
         }
     }
 
     public void set_data(String key, String data) {
-        Log.i("set data ", "is called!");
-        SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
+        //   Log.i("set data ", "is called!");
+        SharedPreferences sharedPreferences = getSharedPreferences("apidata", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, data);
-        Log.i("result of " + key + ": ", data);
+        //   Log.i("result of " + key + ": ", data);
         editor.apply();
     }
 
     public String get_data(String key) {
-        Log.i("fun", "get data is called");
+        // Log.i("fun", "get data is called");
         try {
-            SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences("apidata", MODE_PRIVATE);
             Log.i(key, sharedPreferences.getString(key, ""));
             return sharedPreferences.getString(key, "");
         } catch (Exception exception) {
@@ -296,6 +307,9 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             if (name.get(i).contains("And")) {
                 name.set(i, name.get(i).replace("And", "and"));
             }
+            if (name.get(i).contains(" ")) {
+                name.set(i, name.get(i).replace(" ", "-"));
+            }
             if (name.get(i).contains("Of")) {
                 name.set(i, name.get(i).replace("Of", "of"));
             }
@@ -321,8 +335,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             String result = get_data(k);
             result = result.replaceAll(",", " ");
             result = result.replaceAll("null","0");
-            result = result.replace("T","(Time:-");
-            result = result.replace("(", " ");
+            result = result.replace("T", " ");
             System.out.println("Answer is : " + result);
             String[] str = result.split(" ");
             String[] res = new String[9];
@@ -339,14 +352,33 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                     k = "United Arab Emirates";
                 }
             }
+            k = k.replaceAll("-"," ");
+            long t = get_time_from_last_fetch(res[7]+"T"+res[8])/60;
 
-            Log.i("result of " + k + ": is added ", res[0]);
-            mcountry.add(new Country_item(bitmapList.get(i), k, res[0], res[1], res[2],res[3],res[4],res[5],res[6],(res[7]+" "+res[8])));
+
+            //   Log.i("result of " + k + ": is added ", res[0]);
+            mcountry.add(new Country_item(bitmapList.get(i), k, res[0], res[1], res[2],res[3],res[4],res[5],res[6],(res[7]+" Time: "+t+" minutes ago")));
         }
-
 
     }
 
+    public static long get_time_from_last_fetch(String last_fetch_time_str){
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:SSSZZZ");
+
+        Date last_fetch_time = new Date();
+        try{
+            last_fetch_time = formatter.parse(last_fetch_time_str);
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+            return -1;
+        }
+        Date current_time = new Date();
+        long diff = current_time.getTime() - last_fetch_time.getTime();
+        long diff_in_sec =  diff/1000;
+        return (diff_in_sec);
+    }
     // this part is for removing and adding for owneronly
    /* public void insertCountry(int position, String c, String d, String r) {
         mcountry.add(position, new Country_item(bitmapList.get(position), "United States", c, r, d));
@@ -365,13 +397,12 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(MainActivity.this);
-
     }
     @Override
     public void onItemClick(int position) {
         Intent detailIntent = new Intent(MainActivity.this, DetailActivity.class);
         Country_item clickedItem = mcountry.get(position);
-       // detailIntent.putExtra("item",clickedItem);
+        // detailIntent.putExtra("item",clickedItem);
 
         Bitmap bitmap = clickedItem.getImageResource();
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
