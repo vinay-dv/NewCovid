@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -61,11 +62,10 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public static final String EXTRA_mactive="f", EXTRA_mcritical="h";
     public static final String EXTRA_mtime="i";
     public static final int EXTRA_POS = 0;
-
+   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if(!ConnectionManager.isConnected(MainActivity.this))
         {
            Intent intent = new Intent(this,FirstPage.class);
@@ -83,12 +83,10 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
                     .putBoolean("isFirstRun", false).commit();
 
-            fun(1);
             if(!isFirstRun) {
                 Intent intent = new Intent(this, FirstEveryTime.class);
                 startActivity(intent);
             }
-
             fun(1);
             setContentView(R.layout.activity_main);
             //making list of images
@@ -102,10 +100,9 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.blink);
             mliveIcon.startAnimation(animation);
 
-            //Map<String, String> map = new HashMap<>();
-            // map = fun(1);
-            //printMap(map);
-            fun(1);
+           // Map<String, String> map = new HashMap<>();
+          //  map = fun(1);
+          //  printMap(map);
             createCountryList();
             buildRecyclerView();
 
@@ -128,30 +125,17 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             });
         }
 
-
-      /*  Boolean isFirstRun = getSharedPreferences("data", MODE_PRIVATE)
-                .getBoolean("isFirstRun", true);
-        if (isFirstRun) {
-            startActivity(new Intent(MainActivity.this, FirstPage.class));
-            Intent i = getIntent();
-            finish();
-            startActivity(i);
-        }
-        getSharedPreferences("data", MODE_PRIVATE).edit()
-                .putBoolean("isFirstRun", false).commit();
-*/
-        // if (!isFirstRun) {}
-
     }
 
-  /*  public static void printMap(Map mp) {
+ 
+    /* public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
             System.out.println(pair.getKey() + " = " + pair.getValue());
             it.remove(); // avoids a ConcurrentModificationException
         }
-    } */
+   } */
 
     public static final List<String> country_list
             = Collections.unmodifiableList(Arrays.asList("Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua-and-Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia-and-Herzegovina","Botswana","Brazil","British-Virgin-Islands","Brunei-","Bulgaria","Burkina-Faso","Burundi","Cabo-Verde","Cambodia","Cameroon","Canada","CAR","Caribbean-Netherlands","Cayman-Islands","Chad","Channel-Islands","Chile","China","Colombia","Congo","Costa-Rica","Croatia","Cuba","Cura&ccedil;ao","Cyprus","Czechia","Denmark","Diamond-Princess-","Djibouti","Dominica","Dominican-Republic","DRC","Ecuador","Egypt","El-Salvador","Equatorial-Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Faeroe-Islands","Fiji","Finland","France","French-Guiana","French-Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guadeloupe","Guam","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong-Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle-of-Man","Israel","Italy","Ivory-Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Martinique","Mauritania","Mauritius","Mayotte","Mexico","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","MS-Zaandam","MS-Zaandam-","Myanmar","Namibia","Nepal","Netherlands","New-Caledonia","New-Zealand","Nicaragua","Niger","Nigeria","North-Macedonia","Norway","Oman","Pakistan","Palestine","Panama","Papua-New-Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto-Rico","Qatar","R&eacute;union","Romania","Russia","Rwanda","S.-Korea","Saint-Kitts-and-Nevis","Saint-Lucia","Saint-Martin","San-Marino","Saudi-Arabia","Senegal","Serbia","Seychelles","Sierra-Leone","Singapore","Sint-Maarten","Slovakia","Slovenia","Somalia","South-Africa","Spain","Sri-Lanka","St.-Barth","St.-Vincent-Grenadines","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tanzania","Thailand","Timor-Leste","Togo","Trinidad-and-Tobago","Tunisia","Turkey","Turks-and-Caicos","U.S.-Virgin-Islands","UAE","Uganda","UK","Ukraine","Uruguay","USA","Uzbekistan","Vatican-City","Venezuela","Vietnam","Zambia","Zimbabwe"));
@@ -240,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
     public void set_data(String key, String data) {
         //   Log.i("set data ", "is called!");
-        SharedPreferences sharedPreferences = getSharedPreferences("apidata", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("appdata", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, data);
         //   Log.i("result of " + key + ": ", data);
@@ -250,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public String get_data(String key) {
         // Log.i("fun", "get data is called");
         try {
-            SharedPreferences sharedPreferences = getSharedPreferences("apidata", MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences("appdata", MODE_PRIVATE);
             Log.i(key, sharedPreferences.getString(key, ""));
             return sharedPreferences.getString(key, "");
         } catch (Exception exception) {
