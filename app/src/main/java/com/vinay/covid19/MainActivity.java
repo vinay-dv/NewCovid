@@ -127,6 +127,40 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
     }
 
+     @Override
+    protected void onResume() {
+        super.onResume();
+        if(t!=null) {
+            if(t.isAlive()) {
+                t.interrupt();
+                try {
+                    t.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            t=null;
+        }
+    }
+
+
+  @Override
+    protected void onPause() {
+        super.onPause();
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(1*60*1000);
+                    // Wipe your valuable data here
+                    finishAffinity();
+                    System.exit(0);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+        }.start();
+
+    }
  
     /* public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
