@@ -1,10 +1,9 @@
 package com.vinay.covid19;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
@@ -22,16 +21,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import android.preference.PreferenceManager;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import android.util.Log;
-import android.util.Size;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.ImageView;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -45,10 +44,10 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     private AssetManager assetManager;
     private SearchView searchView;
     public Map<String, String> res;
+    private Button buttonSort;
     private ImageView mliveIcon;
-    public List<String> name = new ArrayList<>();
-    private ArrayList<String> Countryname = new ArrayList<>();
-    public ArrayList<Bitmap> bitmapList;
+    public static final ArrayList<String> name = new ArrayList<>();
+    public static final ArrayList<Bitmap> bitmapList = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private CountryAdapter mAdapter;
     private List<Integer> index = new ArrayList<>();
@@ -61,8 +60,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public static final String EXTRA_mnewCases="e", EXTRA_mnewDeaths="g";
     public static final String EXTRA_mactive="f", EXTRA_mcritical="h";
     public static final String EXTRA_mtime="i";
-    public static final int EXTRA_POS = 0;
-   
+    private Thread t = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,16 +81,18 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
                     .putBoolean("isFirstRun", false).commit();
 
+            fun(1);
             if(!isFirstRun) {
                 Intent intent = new Intent(this, FirstEveryTime.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.entry, R.anim.exit);
             }
             fun(1);
             setContentView(R.layout.activity_main);
             //making list of images
             assetManager = getAssets();
-            bitmapList = new ArrayList<Bitmap>();
             listAllImages();
+            updateNames();
 
 
             // live button
@@ -106,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             createCountryList();
             buildRecyclerView();
 
+            //sorting
+
 
             // Search View
             searchView = findViewById(R.id.searchView);
@@ -116,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                 public boolean onQueryTextSubmit(String query) {
                     return false;
                 }
-
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     ((CountryAdapter) mAdapter).getFilter().filter(newText);
@@ -124,44 +125,42 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                 }
             });
         }
-
     }
 
-     @Override
+/*  @Override
     protected void onResume() {
+        Log.d("main","onResume");
         super.onResume();
-        if(t!=null) {
-            if(t.isAlive()) {
-                t.interrupt();
-                try {
-                    t.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            t=null;
-        }
+        createCountryList();
+        buildRecyclerView();
+    }
+*/
+
+    @Override
+    protected void onStop() {
+        Log.d("main","onStop");
+        super.onStop();
+        ScheduledExecutorService scheduler =
+                Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate
+                (new Runnable() {
+                    public void run() {
+                        Log.d("Service","Getting data for you");
+                       fun(1);
+                    }
+                }, 0, 1, TimeUnit.MINUTES);
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.d("main","onRestart");
+        super.onRestart();
+        createCountryList();
+        buildRecyclerView();
     }
 
 
-  @Override
-    protected void onPause() {
-        super.onPause();
-        new Thread() {
-            public void run() {
-                try {
-                    sleep(1*60*1000);
-                    // Wipe your valuable data here
-                    finishAffinity();
-                    System.exit(0);
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
-        }.start();
 
-    }
- 
     /* public static void printMap(Map mp) {
         Iterator it = mp.entrySet().iterator();
         while (it.hasNext()) {
@@ -187,15 +186,15 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             //  Log.i("fetch1 " + country, get_data(country));
             mp.put(country, get_data(country));
         }
-        return mp;
 
+        return mp;
     }
 
 
     public class DownloadTask extends AsyncTask<String, Void, Map<String, String>> {
         @Override
         protected Map<String, String> doInBackground(String... strings) {
-            ArrayList<String> wrong_country_names = new ArrayList<>();
+          //  ArrayList<String> wrong_country_names = new ArrayList<>();
 
             try {
                 HttpResponse<String> response = Unirest.get("https://covid-193.p.rapidapi.com/statistics")
@@ -232,8 +231,8 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                     //saving data
                     ret = totalcases + "," + totaldeaths + "," + totalrecovered + "," + newCases + "," + mactive + "," +
                             mcritical + "," + newDeaths + "," + timeDate;
-                    Log.i("time is: ",String.valueOf(get_time_from_last_fetch(timeDate)));
-                    Log.i("result of " + country + ": ", ret);
+                  //  Log.i("time is: ",String.valueOf(get_time_from_last_fetch(timeDate)));
+                  //  Log.i("result of " + country + ": ", ret);
                     res.put(country, ret);
                 }
                 Log.i("result is ", "returned");
@@ -261,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         SharedPreferences sharedPreferences = getSharedPreferences("appdata", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, data);
-        //   Log.i("result of " + key + ": ", data);
         editor.apply();
     }
 
@@ -269,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         // Log.i("fun", "get data is called");
         try {
             SharedPreferences sharedPreferences = getSharedPreferences("appdata", MODE_PRIVATE);
-            Log.i(key, sharedPreferences.getString(key, ""));
+          //  Log.i(key, sharedPreferences.getString(key, ""));
             return sharedPreferences.getString(key, "");
         } catch (Exception exception) {
             return "dd";
@@ -346,7 +344,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
 
     // making a country class object (each object will represents the separate country)
     public void createCountryList() {
-        updateNames();
         mcountry = new ArrayList<>();
         for (int i : index) {
             String k = name.get(i);
@@ -354,7 +351,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             result = result.replaceAll(",", " ");
             result = result.replaceAll("null","0");
             result = result.replace("T", " ");
-            System.out.println("Answer is : " + result);
             String[] str = result.split(" ");
             String[] res = new String[9];
             int j = 0;
@@ -372,7 +368,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
             }
             k = k.replaceAll("-"," ");
             long t = get_time_from_last_fetch(res[7]+"T"+res[8])/60;
-
 
             //   Log.i("result of " + k + ": is added ", res[0]);
             mcountry.add(new Country_item(bitmapList.get(i), k, res[0], res[1], res[2],res[3],res[4],res[5],res[6],(res[7]+" Time: "+t+" minutes ago")));
@@ -418,10 +413,10 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     }
     @Override
     public void onItemClick(int position) {
+
         Intent detailIntent = new Intent(MainActivity.this, DetailActivity.class);
         Country_item clickedItem = mcountry.get(position);
         // detailIntent.putExtra("item",clickedItem);
-
         Bitmap bitmap = clickedItem.getImageResource();
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100,bs);
@@ -436,7 +431,8 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         detailIntent.putExtra(EXTRA_mcritical,clickedItem.getCriticalCases());
         detailIntent.putExtra(EXTRA_mnewDeaths,clickedItem.getNewDeaths());
         detailIntent.putExtra(EXTRA_mtime,clickedItem.getTime());
-
         startActivity(detailIntent);
+        overridePendingTransition(R.anim.entry, R.anim.exit);
     }
+
 }
