@@ -40,7 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements CountryAdapter.OnItemClickListener {
-    private ArrayList<Country_item> mcountry;
+    public ArrayList<Country_item> mcountry;
     private AssetManager assetManager;
     private SearchView searchView;
     public Map<String, String> res;
@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public static final String EXTRA_mnewCases="e", EXTRA_mnewDeaths="g";
     public static final String EXTRA_mactive="f", EXTRA_mcritical="h";
     public static final String EXTRA_mtime="i";
+    public static final String EXTRA_positon = "0";
+
     private Thread t = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,14 +129,15 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         }
     }
 
-/*  @Override
+  @Override
     protected void onResume() {
         Log.d("main","onResume");
+        fun(1);
         super.onResume();
         createCountryList();
         buildRecyclerView();
-    }
-*/
+            }
+
 
     @Override
     protected void onStop() {
@@ -146,14 +149,16 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                 (new Runnable() {
                     public void run() {
                         Log.d("Service","Getting data for you");
-                       fun(1);
+                       if(ConnectionManager.isConnected(MainActivity.this))
+                           fun(1);
                     }
-                }, 0, 1, TimeUnit.MINUTES);
+                }, 0, 15, TimeUnit.MINUTES);
     }
 
     @Override
     protected void onRestart() {
         Log.d("main","onRestart");
+        fun(1);
         super.onRestart();
         createCountryList();
         buildRecyclerView();
@@ -316,8 +321,41 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
     public void updateNames() {
         int id = name.indexOf("Usa");
         name.set(id, "USA");
+
         id = name.indexOf("Uae");
         name.set(id, "UAE");
+
+        id = name.indexOf("Brunei");
+        name.set(id, "Brunei-");
+
+        id = name.indexOf("Curacao");
+        name.set(id,"Cura&ccedil;ao");
+
+        id = name.indexOf("St Vincent Grenadines");
+        name.set(id,"St.-Vincent-Grenadines");
+
+        id = name.indexOf("United Kingdom");
+        name.set(id, "UK");
+
+        id = name.indexOf("Virgin Islands");
+        name.set(id, "U.S.-Virgin-Islands");
+
+        id = name.indexOf("Cape Verde");
+        name.set(id, "Cabo Verde");
+
+        id = name.indexOf("Central African Republic");
+        name.set(id, "CAR");
+
+
+        id = name.indexOf("South Korea");
+        name.set(id, "S.-Korea");
+
+        id = name.indexOf("Drc");
+        name.set(id,"DRC");
+
+        id = name.indexOf("St Barth");
+        name.set(id,"St.-Barth");
+
         int total = name.size();
         for (int i = 0; i < total; i++) {
             if (name.get(i).contains("And")) {
@@ -332,6 +370,10 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         }
         id = name.indexOf("andorra");
         name.set(id, "Andorra");
+
+
+
+
 
         for (int i = 0; i < country_list.size(); i++) {
             if (name.contains(country_list.get(i))) {
@@ -358,14 +400,57 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
                 res[j] = s;
                 j++;
             }
+
+            if (k == "Faeroe-Islands") {
+                k = "Faroe Islands";
+            }
+
+            if (k == "S.-Korea") {
+                k = "South Korea";
+            }
+
+            if (k == "DRC") {
+                k = "Democratic Republic of Congo";
+            }
             if (k == "USA") {
                 k = "United States of America";
             }
             if (k == "UAE") {
-                {
-                    k = "United Arab Emirates";
-                }
+                k = "United Arab Emirates";
             }
+            if (k == "UK") {
+                k = "United Kingdom";
+            }
+            if (k == "Brunei-") {
+                k = "Brunei";
+            }
+
+            if ( k == "St.-Vincent-Grenadines")
+            {
+                k = "Saint Vincent Grenadines";
+            }
+
+            if (k == "CAR") {
+                k = "Central African Republic";
+            }
+
+            if (k=="Cura&ccedil;ao")
+            {
+                k = "Curacao";
+            }
+
+            if (k == "St.-Barth"){
+                k = "Saint Barth";
+            }
+
+            if (k == "Cabo Verde"){
+                k = "Cape Verde";
+            }
+
+            if (k == "Faeroe Islands"){
+                k = "Faroe Islands";
+            }
+
             k = k.replaceAll("-"," ");
             long t = get_time_from_last_fetch(res[7]+"T"+res[8])/60;
 
@@ -420,7 +505,6 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         Bitmap bitmap = clickedItem.getImageResource();
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100,bs);
-
         detailIntent.putExtra("BitmapImage", bs.toByteArray());
         detailIntent.putExtra(EXTRA_mCountryName,clickedItem.getCountryName());
         detailIntent.putExtra(EXTRA_mcases,clickedItem.getCases());
@@ -431,6 +515,7 @@ public class MainActivity extends AppCompatActivity implements CountryAdapter.On
         detailIntent.putExtra(EXTRA_mcritical,clickedItem.getCriticalCases());
         detailIntent.putExtra(EXTRA_mnewDeaths,clickedItem.getNewDeaths());
         detailIntent.putExtra(EXTRA_mtime,clickedItem.getTime());
+        detailIntent.putExtra(EXTRA_positon,position);
         startActivity(detailIntent);
         overridePendingTransition(R.anim.entry, R.anim.exit);
     }
